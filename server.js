@@ -7,30 +7,32 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// --- YO'LLARNI SOZLASH (RENDER XATOSINI TUZATISH) ---
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'smm_gold_2026_secret',
+    resave: false,
+    saveUninitialized: true
+}));
+
 // --- SOZLAMALAR ---
-const BOT_TOKEN = '8604338226:AAHjuHRidBEygIet0IhpmU-QPDCzRiwBFQk';
+const BOT_TOKEN = '8604338226:AAHjuHRidBEygIet0IhpmU-QPDCzRiwBFQk'; // Yangi API Token
 const ADMIN_ID = '6735799833';
 const SUPABASE_URL = 'postgresql://postgres:nameSMM_panel@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres';
 
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 const pool = new Pool({ 
-    connectionString: SUPABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    connectionString: SUPABASE_URL, 
+    ssl: { rejectUnauthorized: false } 
 });
 
-app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    secret: 'gold_key_2026',
-    resave: false,
-    saveUninitialized: true
-}));
-
-// --- YO'NALISHLAR ---
+// --- YO'NALISHLAR (ROUTES) ---
 
 app.get('/', (req, res) => {
-    if (req.session.user) return res.redirect('/dashboard');
     res.render('login');
 });
 
@@ -38,8 +40,10 @@ app.post('/auth/register', async (req, res) => {
     const { username, password } = req.body;
     try {
         await pool.query("INSERT INTO users (username, password, balance) VALUES ($1, $2, 500)", [username, password]);
-        res.send("<script>alert('Muvaffaqiyatli! Endi Login qiling.'); window.location='/';</script>");
-    } catch (e) { res.send("Xato: Login band!"); }
+        res.send("<script>alert('Profil yaratildi! Endi Login qiling.'); window.location='/';</script>");
+    } catch (e) {
+        res.send("Xato: Bu login band bo'lishi mumkin.");
+    }
 });
 
 app.post('/auth/login', async (req, res) => {
@@ -49,23 +53,27 @@ app.post('/auth/login', async (req, res) => {
         if (result.rows.length > 0) {
             req.session.user = result.rows[0];
             res.redirect('/dashboard');
-        } else { res.send("Login yoki parol xato!"); }
-    } catch (e) { res.send("Xatolik!"); }
+        } else {
+            res.send("Login yoki parol xato!");
+        }
+    } catch (e) { res.send("Xatolik yuz berdi."); }
 });
 
 app.get('/dashboard', async (req, res) => {
     if (!req.session.user) return res.redirect('/');
     try {
-        const user = await pool.query("SELECT * FROM users WHERE id = $1", [req.session.user.id]);
-        const orders = await pool.query("SELECT * FROM orders WHERE user_id = $1 ORDER BY id DESC", [req.session.user.id]);
-        res.render('dashboard', { user: user.rows[0], orders: orders.rows });
-    } catch (e) { res.send("Yuklashda xato!"); }
+        const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [req.session.user.id]);
+        const ordersResult = await pool.query("SELECT * FROM orders WHERE user_id = $1 ORDER BY id DESC", [req.session.user.id]);
+        res.render('dashboard', { 
+            user: userResult.rows[0], 
+            orders: ordersResult.rows 
+        });
+    } catch (e) { res.send("Ma'lumotlarni yuklashda xato."); }
 });
 
 app.post('/order/new', async (req, res) => {
     const { service, link, qty } = req.body;
-    // Narx mantiqi: 10 ta obunachi = 70 star (Siz aytgan 60-70 mantiqi)
-    const price = Math.ceil(qty * 7); 
+    const price = Math.ceil(qty * 7); // Narx: 10 ta obunachi = 70 star
 
     try {
         const user = await pool.query("SELECT balance FROM users WHERE id = $1", [req.session.user.id]);
@@ -77,7 +85,7 @@ app.post('/order/new', async (req, res) => {
             );
             
             const orderId = order.rows[0].id;
-            bot.sendMessage(ADMIN_ID, `✨ *YANGI BUYURTMA #${orderId}*\n👤 Mijoz: ${req.session.user.username}\n📦 Xizmat: ${service}\n🔗 Link: ${link}\n🔢 Miqdor: ${qty}\n💰 Narx: ${price} Star`, {
+            bot.sendMessage(ADMIN_ID, `✨ *YANGI BUYURTMA #${orderId}*\n👤 Mijoz: ${req.session.user.username}\n📦 Xizmat: ${service}\n🔗 Link: ${link}\n🔢 Soni: ${qty}\n💰 Narxi: ${price} Star`, {
                 parse_mode: 'Markdown',
                 reply_markup: {
                     inline_keyboard: [
@@ -88,21 +96,21 @@ app.post('/order/new', async (req, res) => {
             });
             res.redirect('/dashboard');
         } else {
-            res.send("<script>alert('Star yetarli emas!'); window.location='/dashboard';</script>");
+            res.send("<script>alert('Mablag' yetarli emas!'); window.location='/dashboard';</script>");
         }
-    } catch (e) { res.send("Xato yuz berdi!"); }
+    } catch (e) { res.send("Buyurtmada xatolik."); }
 });
 
+// Bot orqali statusni yangilash
 bot.on('callback_query', async (q) => {
     const [_, status, id] = q.data.split('_');
     try {
         await pool.query("UPDATE orders SET status = $1 WHERE id = $2", [status, id]);
-        bot.editMessageText(`✅ Buyurtma #${id} yangilandi: ${status.toUpperCase()}`, {
+        bot.editMessageText(`✅ Buyurtma #${id} holati: ${status.toUpperCase()}`, {
             chat_id: q.message.chat.id,
             message_id: q.message.message_id
         });
-    } catch (e) { console.log(e); }
+    } catch (e) { console.error(e); }
 });
 
-app.listen(PORT, () => console.log("Server yondi!"));
-
+app.listen(PORT, () => console.log(`SMM Panel ${PORT} da tayyor!`));
