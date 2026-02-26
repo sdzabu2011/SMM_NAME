@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'tg_app_secret', resave: false, saveUninitialized: true }));
 
 // Bot token xavfsizlik uchun (Validate initData)
-const BOT_TOKEN = '8604338226:AAHjuHRidBEygIet0IhpmU-QPDCzRiwBFQk';
+const BOT_TOKEN = '8604338226:AAGKiNW9bk_zrHwOcWggwZZIh2MX0oSs5AI';
 
 // MIDDLEWARE: Telegram ma'lumotlarini tekshirish
 app.post('/auth/telegram', async (req, res) => {
@@ -64,3 +64,4 @@ app.post('/order/new', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Telegram Web App running on port ${PORT}`));
+
