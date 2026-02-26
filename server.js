@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- SOZLAMALAR ---
-const BOT_TOKEN = '8604338226:AAHXdsB83nXjc8_YHITw70d8K2Epu1FeD8o';
+const BOT_TOKEN = '8604338226:AAHjuHRidBEygIet0IhpmU-QPDCzRiwBFQk';
 const ADMIN_ID = '6735799833';
 const SUPABASE_URL = 'postgresql://postgres:nameSMM_panel@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres';
 
@@ -105,3 +105,4 @@ bot.on('callback_query', async (q) => {
 });
 
 app.listen(PORT, () => console.log("Server yondi!"));
+
