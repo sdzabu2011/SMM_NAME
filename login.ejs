@@ -1,39 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/style.css">
-    <title>SMM Gold - Kirish</title>
+    <title>SMM Gold Access</title>
 </head>
-<body class="d-flex align-items-center vh-100">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-4 card p-4">
-                <h2 class="text-center gold-text mb-4">SMM GOLD PANEL</h2>
-                <form action="/auth/login" method="POST">
-                    <input type="text" name="username" class="form-control mb-3" placeholder="Login" required>
-                    <input type="password" name="password" class="form-control mb-3" placeholder="Parol" required>
-                    <button class="btn btn-gold w-100 mb-3">KIRISH</button>
-                </form>
-                <div class="text-center">
-                    <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#regModal">Profil yaratish</button>
-                </div>
+<body class="d-flex align-items-center vh-100 bg-black">
+    <div class="container text-center">
+        <div class="card p-5 border-warning bg-dark">
+            <h1 class="gold-text mb-4">SMM GOLD PANEL</h1>
+            <p class="text-secondary">Xizmatlardan foydalanish uchun Telegram hisobingizga ruxsat bering</p>
+            
+            <div id="user-info" class="mb-4 d-none">
+                <img id="user-photo" src="" class="rounded-circle border border-warning mb-2" width="80">
+                <h4 id="user-name" class="text-white"></h4>
             </div>
+
+            <button id="access-btn" class="btn btn-gold btn-lg w-100 py-3 shadow">
+                GIVE ACCESS
+            </button>
         </div>
     </div>
 
-    <div class="modal fade" id="regModal" tabindex="-1">
-        <div class="modal-dialog"><div class="modal-content bg-dark border-warning">
-            <div class="modal-body">
-                <h4 class="gold-text">Ro'yxatdan o'tish</h4>
-                <form action="/auth/register" method="POST">
-                    <input type="text" name="username" class="form-control mb-2" placeholder="Yangi login" required>
-                    <input type="password" name="password" class="form-control mb-2" placeholder="Yangi parol" required>
-                    <button class="btn btn-gold w-100">YARATISH</button>
-                </form>
-            </div>
-        </div></div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const tele = window.Telegram.WebApp;
+        tele.ready();
+        tele.expand();
+
+        const accessBtn = document.getElementById('access-btn');
+        const user = tele.initDataUnsafe?.user;
+
+        if (user) {
+            document.getElementById('user-info').classList.remove('d-none');
+            document.getElementById('user-name').innerText = "@" + user.username;
+            if (user.photo_url) document.getElementById('user-photo').src = user.photo_url;
+        }
+
+        accessBtn.addEventListener('click', () => {
+            // Ma'lumotlarni serverga yuborish va Dashboardga o'tish
+            fetch('/auth/telegram', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ initData: tele.initData, user: user })
+            }).then(() => {
+                window.location.href = '/dashboard';
+            });
+        });
+    </script>
 </body>
 </html>
