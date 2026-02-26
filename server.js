@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- SOZLAMALAR ---
-const BOT_TOKEN = '8604338226:AAGKiNW9bk_zrHwOcWggwZZIh2MX0oSs5AI'; 
+const BOT_TOKEN = process.env.BOT_TOKEN;
 const WEB_APP_URL = 'https://smm-name.onrender.com'; // Web App manzilingiz
 const SUPABASE_URL = 'postgresql://postgres:nameSMM_panel@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres';
 
@@ -80,3 +80,4 @@ app.post('/order/new', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server ishladi: ${PORT}`));
+
