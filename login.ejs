@@ -1,35 +1,38 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html>
 <head>
-    <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <title>SMM Panel - Kirish</title>
+    <link rel="stylesheet" href="/style.css">
+    <title>SMM Gold - Kirish</title>
 </head>
-<body class="bg-dark text-white">
-    <div class="container vh-100 d-flex justify-content-center align-items-center">
-        <div class="card p-4 bg-secondary shadow-lg" style="width: 400px;">
-            <h2 class="text-center text-warning">SMM PANEL</h2>
-            <ul class="nav nav-tabs mb-3" id="myTab">
-                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#login">Kirish</button></li>
-                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reg">Ro'yxatdan o'tish</button></li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane fade show active" id="login">
-                    <form action="/auth/login" method="POST">
-                        <input type="text" name="username" class="form-control mb-3" placeholder="Login" required>
-                        <input type="password" name="password" class="form-control mb-3" placeholder="Parol" required>
-                        <button class="btn btn-warning w-100">Kirish</button>
-                    </form>
-                </div>
-                <div class="tab-pane fade" id="reg">
-                    <form action="/auth/register" method="POST">
-                        <input type="text" name="username" class="form-control mb-3" placeholder="Yangi Login" required>
-                        <input type="password" name="password" class="form-control mb-3" placeholder="Yangi Parol" required>
-                        <button class="btn btn-success w-100">Yaratish</button>
-                    </form>
+<body class="d-flex align-items-center vh-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4 card p-4">
+                <h2 class="text-center gold-text mb-4">SMM GOLD PANEL</h2>
+                <form action="/auth/login" method="POST">
+                    <input type="text" name="username" class="form-control mb-3" placeholder="Login" required>
+                    <input type="password" name="password" class="form-control mb-3" placeholder="Parol" required>
+                    <button class="btn btn-gold w-100 mb-3">KIRISH</button>
+                </form>
+                <div class="text-center">
+                    <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#regModal">Profil yaratish</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="modal fade" id="regModal" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content bg-dark border-warning">
+            <div class="modal-body">
+                <h4 class="gold-text">Ro'yxatdan o'tish</h4>
+                <form action="/auth/register" method="POST">
+                    <input type="text" name="username" class="form-control mb-2" placeholder="Yangi login" required>
+                    <input type="password" name="password" class="form-control mb-2" placeholder="Yangi parol" required>
+                    <button class="btn btn-gold w-100">YARATISH</button>
+                </form>
+            </div>
+        </div></div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
