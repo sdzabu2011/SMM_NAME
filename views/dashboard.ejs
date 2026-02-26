@@ -1,71 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/style.css">
+    <style>
+        body { background: #0f0f0f; color: white; }
+        .gold-card { border: 1px solid #ffd700; background: #1a1a1a; border-radius: 15px; }
+        
+        /* Floating Telegram Button - Chekkadagi tugma */
+        #tg-sync-wrapper {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none; /* Faqat bog'lanmagan bo'lsa chiqadi */
+        }
+        .btn-tg {
+            background: #0088cc;
+            color: white;
+            border-radius: 50px;
+            padding: 10px 20px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <div class="container py-4">
-        <div class="card p-3 border-warning mb-4 shadow-sm">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    <img id="dash-photo" src="" class="rounded-circle me-3 border border-warning" width="50">
-                    <div>
-                        <h5 class="m-0 gold-text" id="dash-name">User</h5>
-                        <small class="text-secondary">Telegram Verified ✅</small>
-                    </div>
-                </div>
-                <div class="text-end">
-                    <div class="badge bg-warning text-dark p-2">
-                        <span id="star-balance">0</span> ⭐️ STARS
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card p-4 border-warning h-100">
-                    <h4 class="gold-text">New Order</h4>
-                    <form action="/order/new" method="POST">
-                        <select name="service" class="form-select bg-dark text-white border-secondary mb-3">
-                            <option value="TG Subs">Telegram Members (100 = 700 ⭐️)</option>
-                            <option value="TG Views">Post Views (1000 = 50 ⭐️)</option>
-                        </select>
-                        <input type="text" name="link" class="form-control bg-dark text-white border-secondary mb-3" placeholder="https://t.me/your_channel">
-                        <input type="number" name="qty" id="qty-input" class="form-control bg-dark text-white border-secondary mb-3" placeholder="Quantity">
-                        <button class="btn btn-gold w-100">ORDER NOW</button>
-                    </form>
-                </div>
+<div class="container mt-5">
+    <div class="gold-card p-4">
+        <h2>Xush kelibsiz, <%= user.username %>!</h2>
+        <hr color="gold">
+        <div class="row mt-4">
+            <div class="col-6">
+                <p class="text-secondary m-0">Balans (Stars):</p>
+                <h3 class="text-warning">⭐️ <%= user.balance || 0 %></h3>
             </div>
-            <div class="col-md-6 mt-4 mt-md-0">
-                <h4 class="gold-text">Recent Orders</h4>
-                <div class="card bg-dark border-secondary p-2">
-                    <table class="table table-dark table-hover m-0">
-                        <thead><tr><th>Service</th><th>Qty</th><th>Status</th></tr></thead>
-                        <tbody id="order-list">
-                            <% orders.forEach(o => { %>
-                                <tr>
-                                    <td><%= o.service %></td>
-                                    <td><%= o.qty %></td>
-                                    <td><span class="badge bg-secondary"><%= o.status %></span></td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="col-6 text-end">
+                <p class="text-secondary m-0">Telegram Holati:</p>
+                <h5 id="status-text">
+                    <%= user.tg_id ? "✅ Bog'langan: @" + user.tg_username : "❌ Bog'lanmagan" %>
+                </h5>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const tele = window.Telegram.WebApp;
-        const user = tele.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('dash-name').innerText = user.first_name;
-            if (user.photo_url) document.getElementById('dash-photo').src = user.photo_url;
+<div id="tg-sync-wrapper">
+    <button onclick="linkTelegram()" class="btn-tg">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" width="20" class="me-2">
+        Sync with Telegram
+    </button>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    const isLinked = "<%= user.tg_id %>" !== "";
+
+    // Agar foydalanuvchi hali bog'lanmagan bo'lsa va sayt Telegram ichida ochilgan bo'lsa
+    if (!isLinked && tg.initDataUnsafe.user) {
+        document.getElementById('tg-sync-wrapper').style.display = 'block';
+    }
+
+    async function linkTelegram() {
+        const user = tg.initDataUnsafe.user;
+        if (!user) return alert("Faqat Telegram ichida ishlaydi!");
+
+        const response = await fetch('/api/link-telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tg_id: user.id,
+                tg_username: user.username,
+                tg_first_name: user.first_name
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert("Muvaffaqiyatli bog'landi!");
+            location.reload();
         }
-    </script>
+    }
+</script>
 </body>
 </html>
