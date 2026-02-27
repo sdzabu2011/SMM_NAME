@@ -1,88 +1,183 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMM Panel - Dashboard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
-        body { background: #0f0f0f; color: white; }
-        .gold-card { border: 1px solid #ffd700; background: #1a1a1a; border-radius: 15px; }
-        
-        /* Floating Telegram Button - Chekkadagi tugma */
-        #tg-sync-wrapper {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: none; /* Faqat bog'lanmagan bo'lsa chiqadi */
-        }
-        .btn-tg {
-            background: #0088cc;
-            color: white;
-            border-radius: 50px;
-            padding: 10px 20px;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
-            font-weight: bold;
-        }
+        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; padding-top: 20px;}
+        .gold-text { color: #d4af37; }
+        .card { background: #1e1e1e; border: 1px solid #d4af37; border-radius: 15px; }
+        .btn-gold { background: #d4af37; color: #000; font-weight: bold; border: none; }
+        .btn-gold:hover { background: #b8962e; color: #000; }
+        .form-control, .form-select { background: #2a2a2a; border: 1px solid #444; color: #fff; }
+        .form-control:focus, .form-select:focus { background: #333; color: #fff; border-color: #d4af37; box-shadow: none; }
+        .table { color: #fff; }
+        .badge-kutilmoqda { background: #666; }
+        .badge-bajarildi { background: #d4af37; color: #000; }
+        .tg-btn { background: #0088cc; color: white; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container mt-5">
-    <div class="gold-card p-4">
-        <h2>Xush kelibsiz, <%= user.username %>!</h2>
-        <hr color="gold">
-        <div class="row mt-4">
-            <div class="col-6">
-                <p class="text-secondary m-0">Balans (Stars):</p>
-                <h3 class="text-warning">⭐️ <%= user.balance || 0 %></h3>
+<div class="container pb-5">
+    <div class="card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="m-0">Xush kelibsiz, <span class="gold-text"><%= user.username %></span></h4>
+                <p class="m-0 text-secondary mt-1">Balans: <strong class="gold-text">⭐️ <%= user.balance %> Stars</strong></p>
             </div>
-            <div class="col-6 text-end">
-                <p class="text-secondary m-0">Telegram Holati:</p>
-                <h5 id="status-text">
-                    <%= user.tg_id ? "✅ Bog'langan: @" + user.tg_username : "❌ Bog'lanmagan" %>
-                </h5>
+            <a href="/auth/logout" class="btn btn-outline-danger btn-sm">Chiqish</a>
+        </div>
+
+        <% if (!user.tg_id) { %>
+            <hr class="border-secondary">
+            <div id="tg-sync-area">
+                <p class="text-warning mb-2">Buyurtma berish uchun Telegram hisobingizni bog'lang (Faqat WebApp'da ishlaydi):</p>
+                <button class="btn tg-btn px-4" onclick="syncTelegram()">Telegram bilan bog'lash</button>
             </div>
+        <% } else { %>
+            <hr class="border-secondary">
+            <p class="text-success m-0">✅ Telegram bog'langan: @<%= user.tg_username %></p>
+        <% } %>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <h4 class="gold-text mb-3">Yangi Buyurtma</h4>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Ijtimoiy tarmoq</label>
+                <select class="form-select" id="platform">
+                    <option value="Instagram">Instagram</option>
+                    <option value="Telegram">Telegram</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="TikTok">TikTok</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Xizmat turi</label>
+                <select class="form-select" id="service_type">
+                    <option value="Obunachi">Obunachi (Subscribers)</option>
+                    <option value="Like">Like</option>
+                    <option value="Prosmotr">Prosmotr (Views)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Kanal yoki Video havolasi (Link)</label>
+            <input type="text" class="form-control" id="link" placeholder="https://...">
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Soni (10 - 25,000)</label>
+                <input type="number" class="form-control" id="quantity" value="10" min="10" max="25000" oninput="calculatePrice()">
+            </div>
+            <div class="col-md-6 mb-3 d-flex align-items-end">
+                <div class="w-100 p-2 text-center" style="background: #2a2a2a; border-radius: 8px; border: 1px solid #d4af37;">
+                    Jami Narx: <strong class="gold-text fs-4" id="price-display">100</strong> <span class="gold-text">Stars</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-gold w-100 py-2 mt-2" onclick="placeOrder()">Buyurtma Berish</button>
+    </div>
+
+    <div class="card p-4">
+        <h4 class="gold-text mb-3">So'nggi Buyurtmalar</h4>
+        <div class="table-responsive">
+            <table class="table table-dark table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Tarmoq</th>
+                        <th>Xizmat</th>
+                        <th>Soni</th>
+                        <th>Narxi</th>
+                        <th>Holati</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                        <tr>
+                            <td><%= order.platform %></td>
+                            <td><%= order.service_type %></td>
+                            <td><%= order.quantity %></td>
+                            <td>⭐️ <%= order.price %></td>
+                            <td><span class="badge badge-<%= order.status %>"><%= order.status %></span></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<div id="tg-sync-wrapper">
-    <button onclick="linkTelegram()" class="btn-tg">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" width="20" class="me-2">
-        Sync with Telegram
-    </button>
-</div>
-
 <script>
     const tg = window.Telegram.WebApp;
-    const isLinked = "<%= user.tg_id %>" !== "";
+    tg.ready();
+    tg.expand();
 
-    // Agar foydalanuvchi hali bog'lanmagan bo'lsa va sayt Telegram ichida ochilgan bo'lsa
-    if (!isLinked && tg.initDataUnsafe.user) {
-        document.getElementById('tg-sync-wrapper').style.display = 'block';
+    // Narxni hisoblash (10 ta = 100 stars)
+    function calculatePrice() {
+        let qty = document.getElementById('quantity').value;
+        if(qty < 0) qty = 0;
+        let price = Math.floor(qty / 10) * 100;
+        document.getElementById('price-display').innerText = price;
     }
 
-    async function linkTelegram() {
+    // Telegram bog'lash
+    async function syncTelegram() {
         const user = tg.initDataUnsafe.user;
-        if (!user) return alert("Faqat Telegram ichida ishlaydi!");
-
-        const response = await fetch('/api/link-telegram', {
+        if (!user) {
+            alert("Telegram ma'lumotlari topilmadi. Saytni Telegram bot orqali oching!");
+            return;
+        }
+        const res = await fetch('/api/sync-telegram', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                tg_id: user.id,
-                tg_username: user.username,
-                tg_first_name: user.first_name
-            })
+            body: JSON.stringify({ tg_id: user.id, tg_username: user.username || user.first_name })
         });
+        const data = await res.json();
+        if (data.success) location.reload();
+    }
 
-        const result = await response.json();
-        if (result.success) {
-            alert("Muvaffaqiyatli bog'landi!");
+    // Buyurtma berish
+    async function placeOrder() {
+        // Avval bog'langanligini tekshiramiz (bu EJS bilan serverdan kelgan statik ma'lumot)
+        const isLinked = "<%= user.tg_id %>" !== "";
+        if (!isLinked) {
+            alert("Buyurtma berishdan oldin Telegram hisobingizni bog'lang!"); return;
+        }
+
+        const platform = document.getElementById('platform').value;
+        const service_type = document.getElementById('service_type').value;
+        const link = document.getElementById('link').value;
+        const quantity = parseInt(document.getElementById('quantity').value);
+
+        if(!link || quantity < 10 || quantity > 25000) {
+            alert("Havolani kiriting va miqdor 10 - 25000 oralig'ida ekanligiga ishonch hosil qiling.");
+            return;
+        }
+
+        const res = await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform, service_type, link, quantity })
+        });
+        
+        const data = await res.json();
+        if(data.success) {
+            alert("Buyurtma muvaffaqiyatli qabul qilindi!");
             location.reload();
+        } else {
+            alert("Xatolik: " + data.error);
         }
     }
 </script>
+
 </body>
 </html>
