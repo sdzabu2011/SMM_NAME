@@ -12,16 +12,16 @@ const PORT = process.env.PORT || 3000;
 // ==========================================
 // 1. SUPABASE BAZASIGA ULANISH VA TEKSHIRISH
 // ==========================================
+// DIQQAT: Bu yerda Direct Connection (To'g'ridan-to'g'ri 5432 porti) ishlatilmoqda
 const pool = new Pool({
-    // Boshqa hech narsani o'zgartirmang, faqat hozir yangilagan parolingiz to'g'riligiga ishonch hosil qiling
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres.qyfaucykwcwzqyvdwspm:AvgClub2026@aws-0-eu-central-1.pooler.supabase.com:6543/postgres',
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:AvgClub2026@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres',
     ssl: { rejectUnauthorized: false }
 });
 
 // Ulanish to'g'ri ishlashini avtomatik tekshiradigan qism (Log uchun)
 pool.connect((err, client, release) => {
     if (err) {
-        console.error('❌ BAZAGA ULANISHDA XATO! Parol xato yozilgan:', err.message);
+        console.error('❌ BAZAGA ULANISHDA XATO! Parol xato yozilgan yoki server blokladi:', err.message);
     } else {
         console.log('✅ SUPABASE BAZASI BILAN ALOQA ZO\'R!');
         release();
