@@ -9,9 +9,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Supabase bazasiga ulanish
+// Yangi, to'g'irlangan qism:
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:nameSMM_panel@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres',
     ssl: { rejectUnauthorized: false }
 });
 
@@ -140,3 +140,4 @@ app.post('/api/order', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Server ${PORT}-portda ishladi!`));
+
