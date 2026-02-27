@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+/<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -7,70 +7,50 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --teal: #38c2c2;
-            --teal-dark: #266b6b;
-            --bg-main: #f0fbfb;
-            --text-main: #1b4d4d;
-            --white: #ffffff;
-        }
-
-        body {
-            margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden;
-        }
-
-        /* --- YON MENU (SIDEBAR) --- */
-        .sidebar {
-            width: 250px; background-color: var(--teal); color: var(--white);
-            display: flex; flex-direction: column; padding-top: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
+        /* SIZNING O'ZGARMAS DIZAYNINGIZ */
+        :root { --teal: #38c2c2; --teal-dark: #266b6b; --bg-main: #f0fbfb; --text-main: #1b4d4d; --white: #ffffff; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 250px; background-color: var(--teal); color: var(--white); display: flex; flex-direction: column; padding-top: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
         .brand { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 30px; letter-spacing: 1px; }
         .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-        .sidebar-menu li { 
-            padding: 12px 20px; margin: 5px 15px; border-radius: 8px; cursor: pointer; 
-            display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 15px; transition: 0.3s;
-        }
+        .sidebar-menu li { padding: 12px 20px; margin: 5px 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 15px; transition: 0.3s; }
         .sidebar-menu li i { width: 20px; text-align: center; }
         .sidebar-menu li.active { background-color: var(--white); color: var(--teal); font-weight: bold; }
         .sidebar-menu li:hover:not(.active) { background-color: rgba(255,255,255,0.15); }
-
-        /* --- ASOSIY QISM --- */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        
-        /* Yuqori panel */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--white); padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
         .user-greeting { font-size: 18px; font-weight: 600; }
         .balance-badge { background-color: var(--teal); color: var(--white); padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 10px rgba(56, 194, 194, 0.3); }
         .tg-sync-btn { background-color: #0088cc; color: var(--white); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
         .tg-sync-btn:hover { background-color: #0077b5; }
-
-        /* Holat tugmalari (Tabs) */
         .status-tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
         .tab-btn { background: transparent; border: none; color: var(--teal); font-weight: 600; font-size: 14px; cursor: pointer; padding: 8px 16px; border-radius: 6px; white-space: nowrap; transition: 0.3s; }
         .tab-btn.active { background-color: var(--teal); color: var(--white); }
         .tab-btn:hover:not(.active) { background-color: rgba(56, 194, 194, 0.1); }
-
-        /* Forma va Kartochkalar */
         .card { background: var(--white); border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,100,100,0.04); margin-bottom: 25px; border-top: 4px solid var(--teal); }
-        
         .search-box { position: relative; margin-bottom: 25px; }
         .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--teal); }
         .search-box input { width: 100%; padding: 12px 12px 12px 45px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #fafafa; outline: none; box-sizing: border-box; font-size: 15px;}
         .search-box input:focus { border-color: var(--teal); background: var(--white); }
-
         .form-group { margin-bottom: 20px; }
         .form-label { display: block; font-weight: 600; color: var(--teal-dark); margin-bottom: 8px; font-size: 14px;}
         .form-control { width: 100%; padding: 14px; border: 1px solid #e0e0e0; background-color: #fafafa; border-radius: 8px; color: var(--text-main); font-size: 15px; box-sizing: border-box; outline: none; transition: 0.3s;}
-        .form-control:focus { border-color: var(--teal); background: var(--white); box-shadow: 0 0 0 3px rgba(56, 194, 194, 0.1); }
-        
+        .form-control:focus { border-color: var(--teal); background: var(--white); }
         .price-display { background: var(--teal-light); padding: 15px; border-radius: 8px; text-align: center; border: 1px dashed var(--teal); margin-top: 10px; }
         .price-display span { font-size: 24px; font-weight: bold; color: var(--teal); }
-
         .btn-submit { background-color: var(--teal); color: var(--white); border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 10px; box-shadow: 0 4px 12px rgba(56, 194, 194, 0.3); }
         .btn-submit:hover { background-color: #2ab0b0; transform: translateY(-2px); }
+        
+        /* Table Styles (For orders/services) */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px;}
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { color: var(--teal-dark); font-weight: 600; }
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; color: white; }
+        .badge-kutilmoqda { background-color: #f59e0b; }
+        .badge-jarayonda { background-color: #3b82f6; }
+        .badge-bajarildi { background-color: #10b981; }
+        .badge-bekor { background-color: #ef4444; }
 
-        /* Mobil moslashuv */
         @media (max-width: 768px) {
             body { flex-direction: column; overflow: auto; }
             .sidebar { width: 100%; height: auto; padding: 10px 0; box-shadow: none; z-index: 10;}
@@ -80,6 +60,10 @@
             .main-content { padding: 15px; }
             .top-bar { flex-direction: column; gap: 15px; align-items: flex-start; }
         }
+
+        /* Qismlarni yashirish uchun */
+        .section-view { display: none; }
+        .section-view.active { display: block; }
     </style>
 </head>
 <body>
@@ -87,27 +71,19 @@
     <div class="sidebar">
         <div class="brand">SMM PANEL</div>
         <ul class="sidebar-menu">
-            <li class="active"><i class="fa-solid fa-basket-shopping"></i> Yangi buyurtma</li>
-            <li><i class="fa-solid fa-wallet"></i> Hisobni to'ldirish</li>
-            <li><i class="fa-solid fa-rotate-left"></i> Refunds</li>
-            <li><i class="fa-solid fa-list-ul"></i> Xizmatlar</li>
-            <li><i class="fa-solid fa-clock-rotate-left"></i> Buyurtmalar</li>
+            <li class="active" onclick="switchTab('new-order', this)"><i class="fa-solid fa-basket-shopping"></i> Yangi buyurtma</li>
+            <li onclick="switchTab('deposit', this)"><i class="fa-solid fa-wallet"></i> Hisobni to'ldirish</li>
+            <li onclick="switchTab('services', this)"><i class="fa-solid fa-list-ul"></i> Xizmatlar ro'yxati</li>
+            <li onclick="switchTab('history', this)"><i class="fa-solid fa-clock-rotate-left"></i> Mening Buyurtmalarim</li>
             <li style="margin-top: auto;" onclick="window.location.href='/auth/logout'"><i class="fa-solid fa-right-from-bracket"></i> Chiqish</li>
         </ul>
     </div>
 
     <div class="main-content">
-        
         <div class="top-bar">
-            <div class="user-greeting">
-                Salom, <span style="color: var(--teal);"><%= user.username %></span> 👋
-            </div>
-            
+            <div class="user-greeting">Salom, <span style="color: var(--teal);"><%= user.username %></span> 👋</div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <div class="balance-badge">
-                    ⭐️ Balans: <%= user.balance %> Stars
-                </div>
-                
+                <div class="balance-badge">⭐️ Balans: <%= user.balance %> Stars</div>
                 <% if (!user.tg_id) { %>
                     <button class="tg-sync-btn" onclick="syncTelegram()"><i class="fa-brands fa-telegram"></i> Botga ulash</button>
                 <% } else { %>
@@ -116,145 +92,246 @@
             </div>
         </div>
 
-        <div class="status-tabs">
-            <button class="tab-btn active">Barcha</button>
-            <button class="tab-btn">Kutilmoqda</button>
-            <button class="tab-btn">Jarayonda</button>
-            <button class="tab-btn">Bajarilgan</button>
-            <button class="tab-btn">Qisman</button>
-            <button class="tab-btn">Bajarilmoqda</button>
-            <button class="tab-btn">Bekor qilingan</button>
-        </div>
-
-        <div class="card">
-            
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Izlash">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Kategoriya (Turkum)</label>
-                <select class="form-control" id="platform">
-                    <option value="Telegram">⚡️ Telegram O'zbek xizmatlar</option>
-                    <option value="Instagram">📸 Instagram Xizmatlari</option>
-                    <option value="YouTube">▶️ YouTube Xizmatlari</option>
-                    <option value="TikTok">🎵 TikTok Xizmatlari</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Xizmat</label>
-                <select class="form-control" id="service_type">
-                    <option value="Obunachi">459 - O'zbek Obunachilar (Sifatli) - 100 Stars / 10 ta</option>
-                    <option value="Like">102 - Like / Yurakcha bosish - 100 Stars / 10 ta</option>
-                    <option value="Prosmotr">315 - Prosmotr / Ko'rishlar - 100 Stars / 10 ta</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Havola (Link)</label>
-                <input type="text" class="form-control" id="link" placeholder="Kanal yoki video silkasini qo'ying">
-            </div>
-
-            <div class="row" style="display: flex; gap: 20px;">
-                <div class="form-group" style="flex: 1;">
-                    <label class="form-label">Soni (Min: 10 - Max: 25000)</label>
-                    <input type="number" class="form-control" id="quantity" value="10" min="10" max="25000" oninput="calculatePrice()">
+        <div id="new-order" class="section-view active">
+            <div class="card">
+                <h3 style="color: var(--teal-dark); margin-top:0;">Yangi buyurtma yaratish</h3>
+                <div class="form-group">
+                    <label class="form-label">Kategoriya (Tarmoq)</label>
+                    <select class="form-control" id="platform" onchange="updateServices()">
+                        <option value="Telegram">⚡️ Telegram Xizmatlari</option>
+                        <option value="Instagram">📸 Instagram Xizmatlari</option>
+                        <option value="YouTube">▶️ YouTube Xizmatlari</option>
+                    </select>
                 </div>
-                
-                <div class="form-group" style="flex: 1;">
-                    <label class="form-label">Jami to'lov (Stars)</label>
-                    <div class="price-display">
-                        <span id="price-display">100</span> ⭐️
+                <div class="form-group">
+                    <label class="form-label">Xizmat turi</label>
+                    <select class="form-control" id="service_type">
+                        </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Havola (Link) - <small>Aynan qayerga uramiz?</small></label>
+                    <input type="text" class="form-control" id="link" placeholder="Kanal, guruh yoki video silkasini yozing">
+                </div>
+                <div class="row" style="display: flex; gap: 20px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Soni (10 - 25000)</label>
+                        <input type="number" class="form-control" id="quantity" value="10" min="10" oninput="calculatePrice()">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Jami to'lov</label>
+                        <div class="price-display"><span id="price-display">100</span> ⭐️</div>
                     </div>
                 </div>
+                <button class="btn-submit" onclick="placeOrder()">Tasdiqlash va Yuborish</button>
             </div>
-
-            <button class="btn-submit" onclick="placeOrder()">Tasdiqlash va Buyurtma berish</button>
         </div>
+
+        <div id="deposit" class="section-view">
+            <div class="card" style="text-align: center;">
+                <h3 style="color: var(--teal-dark);"><i class="fa-solid fa-star" style="color:#f59e0b;"></i> Telegram Stars orqali to'ldirish</h3>
+                <p>O'zingizga kerakli Stars miqdorini yozing. To'lov to'g'ridan-to'g'ri Telegram orqali xavfsiz amalga oshiriladi.</p>
+                <div class="form-group" style="max-width: 300px; margin: 20px auto;">
+                    <input type="number" class="form-control" id="starsAmount" placeholder="Masalan: 500" value="100">
+                </div>
+                <button class="btn-submit" style="max-width: 300px;" onclick="buyStars()">Hozir sotib olish</button>
+            </div>
+        </div>
+
+        <div id="services" class="section-view">
+            <div class="card">
+                <h3 style="color: var(--teal-dark); margin-top:0;">Mavjud Barcha Xizmatlar</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tarmoq</th>
+                                <th>Xizmat Nomi</th>
+                                <th>Narxi (10 ta uchun)</th>
+                                <th>Tezlik</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>101</td><td><i class="fa-brands fa-telegram" style="color:#0088cc;"></i> Telegram</td><td>O'zbek Obunachilar (Aktiv)</td><td>100 ⭐️</td><td>Tez (1 soat)</td></tr>
+                            <tr><td>102</td><td><i class="fa-brands fa-telegram" style="color:#0088cc;"></i> Telegram</td><td>Post Ko'rishlar (Prosmotr)</td><td>50 ⭐️</td><td>O'ta tez</td></tr>
+                            <tr><td>201</td><td><i class="fa-brands fa-instagram" style="color:#e1306c;"></i> Instagram</td><td>Obunachilar (Global Sifatli)</td><td>150 ⭐️</td><td>O'rta (2 soat)</td></tr>
+                            <tr><td>202</td><td><i class="fa-brands fa-instagram" style="color:#e1306c;"></i> Instagram</td><td>Like / Yurakcha (Real)</td><td>100 ⭐️</td><td>Tez</td></tr>
+                            <tr><td>301</td><td><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> YouTube</td><td>Video Ko'rishlar (Uzbekistan)</td><td>200 ⭐️</td><td>Organik</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="history" class="section-view">
+            <div class="status-tabs">
+                <button class="tab-btn active" onclick="filterOrders('Barcha', this)">Barcha</button>
+                <button class="tab-btn" onclick="filterOrders('Kutilmoqda', this)">Kutilmoqda</button>
+                <button class="tab-btn" onclick="filterOrders('Jarayonda', this)">Jarayonda</button>
+                <button class="tab-btn" onclick="filterOrders('Bajarildi', this)">Bajarildi</button>
+                <button class="tab-btn" onclick="filterOrders('Bekor', this)">Bekor qilingan</button>
+            </div>
+            
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Xizmat</th>
+                                <th>Silka</th>
+                                <th>Soni</th>
+                                <th>Narxi</th>
+                                <th>Holati</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <% orders.forEach(order => { 
+                                // Status ranglarini belgilash
+                                let badgeClass = 'badge-kutilmoqda';
+                                if(order.status === 'Jarayonda') badgeClass = 'badge-jarayonda';
+                                if(order.status === 'Bajarildi') badgeClass = 'badge-bajarildi';
+                                if(order.status.includes('Bekor')) badgeClass = 'badge-bekor';
+                            %>
+                                <tr class="order-row" data-status="<%= order.status %>">
+                                    <td>#<%= order.id %></td>
+                                    <td><%= order.platform %> - <%= order.service_type %></td>
+                                    <td><a href="<%= order.link %>" target="_blank" style="color: var(--teal);">Ochish</a></td>
+                                    <td><%= order.quantity %></td>
+                                    <td><%= order.price %> ⭐️</td>
+                                    <td><span class="badge <%= badgeClass %>"><%= order.status %></span></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        tg.ready(); tg.expand();
 
-        // Narxni hisoblash (10 ta = 100 stars)
+        // 1. MENU ALMASHTIRISH (Sahifa yangilanmasdan)
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            if(tabId === 'new-order') updateServices(); // Qaytganida ro'yxatni yuklash
+        }
+
+        // 2. KATEGORIYAGA QARAB XIZMATLARNI O'ZGARTIRISH
+        const servicesData = {
+            "Telegram": [
+                { id: "TG-SUB", name: "O'zbek Obunachilar (Aktiv)", price: 100 },
+                { id: "TG-VIEW", name: "Post Ko'rishlar (Oxirgi 5 post)", price: 50 }
+            ],
+            "Instagram": [
+                { id: "IG-SUB", name: "Obunachilar (Global Sifatli)", price: 150 },
+                { id: "IG-LIKE", name: "Like / Yurakcha (Real)", price: 100 }
+            ],
+            "YouTube": [
+                { id: "YT-VIEW", name: "Video Ko'rishlar (Organik)", price: 200 }
+            ]
+        };
+
+        function updateServices() {
+            const platform = document.getElementById('platform').value;
+            const select = document.getElementById('service_type');
+            select.innerHTML = "";
+            servicesData[platform].forEach(srv => {
+                select.innerHTML += `<option value="${srv.name}" data-price="${srv.price}">${srv.name} - ${srv.price} ⭐️ / 10ta</option>`;
+            });
+            calculatePrice();
+        }
+
         function calculatePrice() {
-            let qty = document.getElementById('quantity').value;
-            if(qty < 0) qty = 0;
-            // Sizning tarifingiz: Har 10 ta uchun 100 Stars
-            let price = Math.floor(qty / 10) * 100;
+            let qty = document.getElementById('quantity').value || 10;
+            const option = document.getElementById('service_type').options[document.getElementById('service_type').selectedIndex];
+            let basePrice = option ? parseInt(option.getAttribute('data-price')) : 100;
+            
+            let price = Math.floor(qty / 10) * basePrice;
             document.getElementById('price-display').innerText = price;
         }
 
-        // Telegram bilan avtomatik bog'lash
+        // Boshlanishida ro'yxatni to'ldirish
+        window.onload = () => updateServices();
+
+        // 3. TELEGRAM BOG'LASH
         async function syncTelegram() {
             const user = tg.initDataUnsafe?.user;
-            if (!user) {
-                alert("Iltimos, saytga Telegram botingiz ichidan kiring (WebApp orqali)!");
-                return;
-            }
-            try {
-                const res = await fetch('/api/sync-telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tg_id: user.id, tg_username: user.username || user.first_name })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert("Telegram hisob muvaffaqiyatli bog'landi!");
-                    location.reload();
-                }
-            } catch (err) {
-                alert("Ulanishda xatolik yuz berdi.");
-            }
+            if (!user) return alert("Iltimos, saytni Telegram botingiz orqali (WebApp) oching!");
+            
+            const res = await fetch('/api/sync-telegram', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tg_id: user.id, tg_username: user.username || user.first_name })
+            });
+            const data = await res.json();
+            if (data.success) location.reload();
         }
 
-        // Buyurtma yuborish
+        // 4. BUYURTMA BERISH (Baza va Gruppaga)
         async function placeOrder() {
-            // Serverdan kelgan Telegram ID sini tekshiramiz
             const isLinked = "<%= user.tg_id %>" !== "";
-            if (!isLinked) {
-                alert("Buyurtma berishdan oldin yuqoridagi 'Botga ulash' tugmasini bosing!"); 
-                return;
-            }
+            if (!isLinked) return alert("Avval 'Botga ulash' tugmasini bosing!"); 
 
             const platform = document.getElementById('platform').value;
             const service_type = document.getElementById('service_type').value;
             const link = document.getElementById('link').value.trim();
             const quantity = parseInt(document.getElementById('quantity').value);
 
-            if(!link) {
-                alert("Iltimos, havolani (silkani) kiriting!"); return;
-            }
-            if(quantity < 10 || quantity > 25000) {
-                alert("Miqdor 10 dan 25,000 gacha bo'lishi shart."); return;
-            }
-
-            const btn = document.querySelector('.btn-submit');
-            btn.innerText = "Kuting..."; btn.disabled = true;
+            if(!link) return alert("Kanal yoki post havolasini kiriting!");
+            if(quantity < 10 || quantity > 25000) return alert("Miqdor 10 - 25000 orasida bo'lishi shart.");
 
             try {
                 const res = await fetch('/api/order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ platform, service_type, link, quantity })
                 });
-                
                 const data = await res.json();
                 if(data.success) {
-                    alert("✅ Buyurtma qabul qilindi! Balansingizdan Stars yechib olindi.");
+                    alert("✅ Buyurtma qabul qilindi va Adminga yetkazildi!");
                     location.reload();
+                } else alert("❌ Xatolik: " + data.error);
+            } catch (err) { alert("Server xatosi."); }
+        }
+
+        // 5. STARS SOTIB OLISH INVOICE
+        async function buyStars() {
+            const amount = document.getElementById('starsAmount').value;
+            if(amount < 1) return alert("Noto'g'ri summa!");
+
+            try {
+                const res = await fetch('/api/buy-stars', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: amount })
+                });
+                const data = await res.json();
+                if(data.success && data.url) {
+                    // Telegram WebApp orqali Invoiceni ochish (Agar ishlamasa, botga o'tkazadi)
+                    tg.openTelegramLink(data.url); 
+                } else alert("Xato: " + data.error);
+            } catch (err) { alert("Xatolik yuz berdi"); }
+        }
+
+        // 6. BUYURTMALARNI STATUS BO'YICHA FILTRLASH (Jarayonda, Bajarildi...)
+        function filterOrders(status, btnElement) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            document.querySelectorAll('.order-row').forEach(row => {
+                if(status === 'Barcha') {
+                    row.style.display = 'table-row';
+                } else if(row.getAttribute('data-status').includes(status)) {
+                    row.style.display = 'table-row';
                 } else {
-                    alert("❌ Xatolik: " + data.error);
+                    row.style.display = 'none';
                 }
-            } catch (err) {
-                alert("Server bilan aloqa yo'q.");
-            } finally {
-                btn.innerText = "Tasdiqlash va Buyurtma berish"; btn.disabled = false;
-            }
+            });
         }
     </script>
 </body>
