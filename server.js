@@ -12,11 +12,10 @@ const PORT = process.env.PORT || 3000;
 // ==========================================
 // 1. SUPABASE BAZASIGA ULANISH VA TEKSHIRISH
 // ==========================================
-// DIQQAT: Bu yerda Direct Connection (To'g'ridan-to'g'ri 5432 porti) ishlatilmoqda
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:AvgClub2026@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres',
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres.qyfaucykwcwzqyvdwspm:AvgClub2026@aws-0-us-west-2.pooler.supabase.com:6543/postgres',
     ssl: { rejectUnauthorized: false }
-});
+});;
 
 // Ulanish to'g'ri ishlashini avtomatik tekshiradigan qism (Log uchun)
 pool.connect((err, client, release) => {
@@ -158,3 +157,4 @@ app.post('/api/order', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Server ${PORT}-portda ishladi!`));
+
