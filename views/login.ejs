@@ -3,72 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMM Panel - Login</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>SMM Panel - Tizimga kirish</title>
     <style>
-        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .gold-text { color: #d4af37; }
-        .card { background: #1e1e1e; border: 1px solid #d4af37; border-radius: 15px; width: 100%; max-width: 400px; padding: 30px; }
-        .btn-gold { background: #d4af37; color: #000; font-weight: bold; border: none; width: 100%; padding: 10px; border-radius: 8px; }
-        .btn-gold:hover { background: #b8962e; color: #000; }
-        .form-control { background: #2a2a2a; border: 1px solid #444; color: #fff; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
-        .form-control:focus { background: #333; color: #fff; border-color: #d4af37; box-shadow: none; }
-        .toggle-link { color: #d4af37; cursor: pointer; text-decoration: underline; font-size: 14px; text-align: center; display: block; margin-top: 15px; }
+        body { 
+            background: #e0f7fa; /* Ochiq havo rang fon */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Orqa fondagi bezaklar */
+        body::before {
+            content: ''; position: absolute; top: -50px; left: -50px; width: 300px; height: 300px;
+            background: rgba(43, 196, 196, 0.1); border-radius: 50%;
+        }
+        body::after {
+            content: ''; position: absolute; bottom: -100px; right: -50px; width: 400px; height: 400px;
+            background: rgba(43, 196, 196, 0.1); border-radius: 50%;
+        }
+
+        .card { 
+            background: #ffffff; 
+            padding: 40px 30px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0, 100, 100, 0.08); 
+            width: 100%; 
+            max-width: 380px; 
+            z-index: 1;
+        }
+
+        h2 {
+            color: #1b4d4d;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label { 
+            color: #266b6b; 
+            font-weight: 600; 
+            font-size: 14px; 
+            margin-bottom: 8px; 
+            display: block;
+        }
+
+        .form-control { 
+            background: #f0fbfb; 
+            border: 2px solid transparent; 
+            border-radius: 8px; 
+            padding: 14px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            color: #1b4d4d; 
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .form-control:focus { 
+            outline: none; 
+            border-color: #38c2c2; 
+            background: #ffffff;
+        }
+
+        .btn-teal { 
+            background: #38c2c2; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            width: 100%; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-teal:hover { 
+            background: #2ab0b0; 
+            box-shadow: 0 4px 12px rgba(56, 194, 194, 0.3);
+        }
+
+        .toggle-link { 
+            color: #38c2c2; 
+            text-align: center; 
+            display: block; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+
+        #alert-box {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            border: 1px solid #f87171;
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3 class="text-center gold-text mb-4" id="form-title">Tizimga Kirish</h3>
+    <h2 id="form-title">Tizimga Kirish</h2>
     
-    <div id="alert-box" class="alert alert-danger d-none" style="padding: 10px; font-size: 14px;"></div>
+    <div id="alert-box"></div>
 
-    <input type="text" id="username" class="form-control" placeholder="Foydalanuvchi nomi">
-    <input type="password" id="password" class="form-control" placeholder="Parol">
+    <div class="form-group">
+        <label class="form-label">Foydalanuvchi nomi</label>
+        <input type="text" id="username" class="form-control" placeholder="Loginni kiriting">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Parol</label>
+        <input type="password" id="password" class="form-control" placeholder="Parolni kiriting">
+    </div>
+
+    <div class="form-group" id="confirm-password-group" style="display: none;">
+        <label class="form-label">Parolni tasdiqlang</label>
+        <input type="password" id="confirmPassword" class="form-control" placeholder="Parolni qayta kiriting">
+    </div>
     
-    <button class="btn-gold" id="submit-btn" onclick="submitForm()">Kirish</button>
+    <button class="btn-teal" id="submit-btn" onclick="submitForm()">Tizimga kirish</button>
     
-    <span class="toggle-link" onclick="toggleMode()" id="toggle-text">Hisobingiz yo'qmi? Ro'yxatdan o'ting</span>
+    <span class="toggle-link" onclick="toggleMode()" id="toggle-text">Hisobingiz yo'qmi? Ro'yxatdan o'tish</span>
 </div>
 
 <script>
     let isLogin = true;
 
+    // Sahifani Login yoki Registratsiya rejimiga o'tkazish
     function toggleMode() {
         isLogin = !isLogin;
         document.getElementById('form-title').innerText = isLogin ? "Tizimga Kirish" : "Ro'yxatdan O'tish";
-        document.getElementById('submit-btn').innerText = isLogin ? "Kirish" : "Ro'yxatdan O'tish";
-        document.getElementById('toggle-text').innerText = isLogin ? "Hisobingiz yo'qmi? Ro'yxatdan o'ting" : "Hisobingiz bormi? Tizimga kiring";
-        document.getElementById('alert-box').classList.add('d-none');
+        document.getElementById('submit-btn').innerText = isLogin ? "Tizimga kirish" : "Ro'yxatdan o'tish";
+        document.getElementById('toggle-text').innerText = isLogin ? "Hisobingiz yo'qmi? Ro'yxatdan o'tish" : "Hisobingiz bormi? Tizimga kirish";
+        document.getElementById('confirm-password-group').style.display = isLogin ? "none" : "block";
+        document.getElementById('alert-box').style.display = 'none';
+        
+        // Qutilarni tozalash
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('confirmPassword').value = '';
     }
 
+    // Formani serverga yuborish
     async function submitForm() {
-        const username = document.getElementById('username').value;
+        const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
         const url = isLogin ? '/auth/login' : '/auth/register';
 
-        if(username.length < 3 || password.length < 4) {
-            showAlert("Login va parol juda qisqa!"); return;
+        // 1. Qoidalar (Validatsiya)
+        if(username.length < 3) {
+            showAlert("Login kamida 3 ta harfdan iborat bo'lishi kerak!"); return;
+        }
+        if(/\s/.test(username)) {
+            showAlert("Loginda bo'sh joy (probel) bo'lishi mumkin emas!"); return;
+        }
+        if(password.length < 4) {
+            showAlert("Parol kamida 4 ta belgidan iborat bo'lishi kerak!"); return;
+        }
+        if(!isLogin && password !== confirmPassword) {
+            showAlert("Parollar bir-biriga mos emas!"); return;
         }
 
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
+        // 2. Serverga so'rov yuborish
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
 
-        if (data.success) {
-            window.location.href = '/dashboard';
-        } else {
-            showAlert(data.error);
+            // 3. Javobni tekshirish
+            if (data.success) {
+                window.location.href = '/dashboard';
+            } else {
+                showAlert(data.error || "Noma'lum xatolik yuz berdi!");
+            }
+        } catch (err) {
+            showAlert("Server bilan aloqa yo'q!");
         }
     }
 
+    // Xatolik xabarini chiqarish
     function showAlert(msg) {
         const box = document.getElementById('alert-box');
         box.innerText = msg;
-        box.classList.remove('d-none');
+        box.style.display = 'block';
     }
 </script>
 
