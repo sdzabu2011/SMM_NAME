@@ -1,204 +1,142 @@
-/**
- * SMM GOLD ACCESS - Enterprise Backend System
- * Muallif: Gemini AI Collaboration
- * Versiya: 2.0.0
- */
-
-// 1. MODULLARNI CHAQIRISH
 const express = require('express');
 const { Pool } = require('pg');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const path = require('path');
-const crypto = require('crypto');
-const axios = require('axios');
 const TelegramBot = require('node-telegram-bot-api');
-const helmet = require('helmet');
-const compression = require('compression');
-const morgan = require('morgan');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 2. MA'LUMOTLAR BAZASI SOZLAMALARI (Supabase/PostgreSQL)
+// Supabase bazasiga ulanish
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:nameSMM_panel@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres',
-    ssl: { rejectUnauthorized: false },
-    max: 20, // Bir vaqtning o'zida 20 ta ulanish
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
 });
 
-// 3. TELEGRAM BOT SOZLAMALARI
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const WEB_APP_URL = process.env.WEB_APP_URL || 'https://smm-name.onrender.com';
-const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
-// 4. MIDDLEWARE (Xavfsizlik va samaradorlik)
-app.use(helmet({ contentSecurityPolicy: false })); // Xavfsizlik sarlavhalari
-app.use(compression()); // Trafikni siqish
-app.use(morgan('combined')); // Loglarni yozish
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-// 5. SESSION BOSHQARUVI (Bazada saqlanadi)
-app.use(session({
-    store: new pgSession({ pool: pool, tableName: 'session' }),
-    secret: process.env.SESSION_SECRET || 'gold_master_key_9999',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, secure: false } // 30 kun
-}));
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// --- TIZIMNING YURAGI (LOGIKA) ---
+// Sessiya
+app.use(session({
+    store: new pgSession({ pool: pool, tableName: 'session' }),
+    secret: process.env.SESSION_SECRET || 'gold_smm_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
+}));
 
-// A. BOT BUYRUQLARI
+// Telegram Bot Start
 bot.onText(/\/start/, (msg) => {
-    const chatId = msg.chat.id;
-    bot.sendMessage(chatId, "🌟 **SMM GOLD PANEL** ga xush kelibsiz!\n\nPastdagi tugma orqali panelni oching va xizmatlardan foydalaning.", {
-        parse_mode: 'Markdown',
+    bot.sendMessage(msg.chat.id, "🌟 **SMM GOLD PANEL** ga xush kelibsiz!", {
         reply_markup: {
-            inline_keyboard: [[{ text: "🚀 Panelni Ochish", web_app: { url: WEB_APP_URL } }]]
+            inline_keyboard: [[{ text: "🚀 Panelni Ochish", web_app: { url: process.env.WEB_APP_URL } }]]
         }
     });
 });
 
-// B. AUTHENTICATION (Login/Register)
+// --- SAHIFALAR ---
+app.get('/', (req, res) => {
+    if (req.session.userId) return res.redirect('/dashboard');
+    res.render('login');
+});
+
+// --- REGISTRATSIYA VA LOGIN ---
+app.post('/auth/register', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const checkUser = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+        if (checkUser.rows.length > 0) return res.status(400).json({ error: "Bu logindagi foydalanuvchi mavjud!" });
+
+        const newUser = await pool.query(
+            "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id",
+            [username, password]
+        );
+        req.session.userId = newUser.rows[0].id;
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Registratsiyada xatolik" });
+    }
+});
+
 app.post('/auth/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const user = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
-        if (user.rows.length > 0 && user.rows[0].password === password) {
+        const user = await pool.query("SELECT * FROM users WHERE username = $1 AND password = $2", [username, password]);
+        if (user.rows.length > 0) {
             req.session.userId = user.rows[0].id;
-            return res.json({ success: true, redirect: '/dashboard' });
+            res.json({ success: true });
+        } else {
+            res.status(401).json({ error: "Login yoki parol xato!" });
         }
-        res.status(401).json({ success: false, message: "Username yoki parol xato!" });
     } catch (err) {
-        res.status(500).json({ error: "Server xatosi" });
+        res.status(500).json({ error: "Loginda xatolik" });
     }
 });
 
-// C. TELEGRAM BOG'LASH (Sync)
-app.post('/api/sync-telegram', async (req, res) => {
-    if (!req.session.userId) return res.status(403).json({ error: "Avval login qiling" });
-    const { tg_data } = req.body; // Telegram WebApp.initDataUnsafe.user
-
-    try {
-        await pool.query(
-            "UPDATE users SET tg_id = $1, tg_username = $2, first_name = $3 WHERE id = $4",
-            [tg_data.id, tg_data.username, tg_data.first_name, req.session.userId]
-        );
-        res.json({ success: true, message: "Telegram muvaffaqiyatli bog'landi!" });
-    } catch (err) {
-        res.status(500).json({ error: "Bog'lashda xatolik" });
-    }
+app.get('/auth/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
 });
 
-// D. SMM BUYURTMA BERISH (Reseller API integratsiyasi)
-app.post('/api/order/create', async (req, res) => {
-    const { serviceId, link, quantity } = req.body;
-    const userId = req.session.userId;
-
-    if (!userId) return res.status(403).send("Unauthorized");
-
-    try {
-        const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [userId]);
-        const user = userResult.rows[0];
-
-        // Narxni hisoblash (Masalan: 1000 ta uchun 700 Stars)
-        const price = Math.ceil((quantity / 1000) * 700);
-
-        if (user.balance < price) {
-            return res.status(400).json({ success: false, message: "Mablag' yetarli emas!" });
-        }
-
-        // 1. Bazada balansni kamaytirish
-        await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [price, userId]);
-
-        // 2. SMM API-ga so'rov yuborish (Masalan: JustSMM yoki boshqa)
-        // const apiRes = await axios.get(`https://smm-provider.com/api/v2?key=YOUR_KEY&action=add&service=${serviceId}&link=${link}&quantity=${quantity}`);
-        const externalOrderId = Math.floor(Math.random() * 1000000); // Test uchun
-
-        // 3. Buyurtmani bazaga yozish
-        await pool.query(
-            "INSERT INTO orders (user_id, service_id, link, quantity, price, external_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-            [userId, serviceId, link, quantity, price, externalOrderId, 'pending']
-        );
-
-        res.json({ success: true, orderId: externalOrderId });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Buyurtma berishda xatolik yuz berdi" });
-    }
-});
-
-// E. DASHBOARD MA'LUMOTLARI
+// --- DASHBOARD VA ASOSIY MANTIQ ---
 app.get('/dashboard', async (req, res) => {
     if (!req.session.userId) return res.redirect('/');
-    
     try {
         const user = await pool.query("SELECT * FROM users WHERE id = $1", [req.session.userId]);
-        const orders = await pool.query("SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10", [req.session.userId]);
-        const stats = await pool.query("SELECT COUNT(*) as total_orders, SUM(price) as total_spent FROM orders WHERE user_id = $1", [req.session.userId]);
-
-        res.render('dashboard', {
-            user: user.rows[0],
-            orders: orders.rows,
-            stats: stats.rows[0]
-        });
+        const orders = await pool.query("SELECT * FROM orders WHERE user_id = $1 ORDER BY id DESC LIMIT 10", [req.session.userId]);
+        res.render('dashboard', { user: user.rows[0], orders: orders.rows });
     } catch (err) {
-        res.send("Dashboard yuklashda xatolik");
+        res.send("Xatolik yuz berdi");
     }
 });
 
-// F. STARS TO'LOV TIZIMI (Telegram Stars)
-app.post('/api/deposit/stars', async (req, res) => {
-    const { amount } = req.body;
-    const userId = req.session.userId;
-    const user = await pool.query("SELECT tg_id FROM users WHERE id = $1", [userId]);
-
-    if (!user.rows[0].tg_id) return res.status(400).json({ error: "Avval Telegramni bog'lang!" });
-
-    // Telegram Stars Invoice yuborish
+// Telegram hisobni ulash
+app.post('/api/sync-telegram', async (req, res) => {
+    if (!req.session.userId) return res.status(403).json({ error: "Avval login qiling" });
+    const { tg_id, tg_username } = req.body;
     try {
-        const invoiceUrl = await bot.createInvoiceLink(
-            "Balansni to'ldirish",
-            `${amount} Stars SMM balans uchun`,
-            JSON.stringify({ userId, amount }),
-            "", // provider token (Stars uchun bo'sh)
-            "XTR", // Valyuta
-            [{ label: "Stars", amount: amount }]
-        );
-        res.json({ success: true, url: invoiceUrl });
-    } catch (e) {
-        res.status(500).json({ error: "To'lov linki yaratib bo'lmadi" });
+        await pool.query("UPDATE users SET tg_id = $1, tg_username = $2 WHERE id = $3", [tg_id, tg_username, req.session.userId]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Telegram bog'lashda xatolik" });
     }
 });
 
-// G. XATOLARNI BOSHQARISH (Global Error Handler)
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).render('error', { message: "Tizimda kutilmagan xatolik yuz berdi" });
-});
-// ASOSIY SAHIFA (LOGIN)
-app.get('/', (req, res) => {
-    res.render('login'); // Bu views/login.ejs faylini ochadi
-});
-// 6. SERVERNI ISHGA TUSHIRISH
-app.listen(PORT, () => {
-    console.log(`
-    =========================================
-    🚀 SMM GOLD SERVER ISHLADI
-    🌐 Port: ${PORT}
-    📅 Vaqt: ${new Date().toLocaleString()}
-    =========================================
-    `);
+// Yangi Buyurtma (10 ta = 100 stars)
+app.post('/api/order', async (req, res) => {
+    if (!req.session.userId) return res.status(403).json({ error: "Ruxsat yo'q" });
+    const { platform, service_type, link, quantity } = req.body;
+    
+    // Cheklovlar: 10 dan 25000 gacha
+    if (quantity < 10 || quantity > 25000) return res.status(400).json({ error: "Miqdor 10 dan 25,000 gacha bo'lishi kerak!" });
+
+    // Narx: Har 10 ta uchun 100 stars
+    const price = Math.floor(quantity / 10) * 100;
+
+    try {
+        const userResult = await pool.query("SELECT balance FROM users WHERE id = $1", [req.session.userId]);
+        const currentBalance = userResult.rows[0].balance;
+
+        if (currentBalance < price) return res.status(400).json({ error: "Balansingizda yetarli Stars yo'q!" });
+
+        // Balansni ayirish va buyurtmani yozish
+        await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [price, req.session.userId]);
+        await pool.query(
+            "INSERT INTO orders (user_id, platform, service_type, link, quantity, price) VALUES ($1, $2, $3, $4, $5, $6)",
+            [req.session.userId, platform, service_type, link, quantity, price]
+        );
+
+        res.json({ success: true, message: "Buyurtma qabul qilindi!" });
+    } catch (err) {
+        res.status(500).json({ error: "Buyurtmada xatolik" });
+    }
 });
 
-
+app.listen(PORT, () => console.log(`🚀 Server ${PORT}-portda ishladi!`));
