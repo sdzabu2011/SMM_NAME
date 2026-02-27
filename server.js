@@ -19,7 +19,7 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 // SIZNING GRUPPANGIZ ID SI (Shu yerga bot yuboradi)
 // Agar ID ni bilmasangiz, gruppangizga botni qo'shib, @RawDataBot orqali ID ni biling (masalan: -10012345678)
-const ADMIN_GROUP_ID = '-1000000000000'; // O'zingiznikiga almashtirasiz
+const ADMIN_GROUP_ID = '-1003842819697'; // O'zingiznikiga almashtirasiz
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -211,3 +211,4 @@ app.post('/auth/login', async (req, res) => {
 app.get('/auth/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
 
 app.listen(PORT, () => console.log(`🚀 Server ${PORT}-portda ishladi!`));
+
