@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 // 1. SUPABASE BAZASI
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:AvgClub2026@db.qyfaucykwcwzqyvdwspm.supabase.co:5432/postgres',
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres.qyfaucykwcwzqyvdwspm:AvgClub2026@aws-0-us-west-2.pooler.supabase.com:6543/postgres',
     ssl: { rejectUnauthorized: false }
 });
 
@@ -211,4 +211,5 @@ app.post('/auth/login', async (req, res) => {
 app.get('/auth/logout', (req, res) => { req.session.destroy(); res.redirect('/'); });
 
 app.listen(PORT, () => console.log(`🚀 Server ${PORT}-portda ishladi!`));
+
 
