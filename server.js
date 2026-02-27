@@ -186,7 +186,10 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).render('error', { message: "Tizimda kutilmagan xatolik yuz berdi" });
 });
-
+// ASOSIY SAHIFA (LOGIN)
+app.get('/', (req, res) => {
+    res.render('login'); // Bu views/login.ejs faylini ochadi
+});
 // 6. SERVERNI ISHGA TUSHIRISH
 app.listen(PORT, () => {
     console.log(`
@@ -197,3 +200,4 @@ app.listen(PORT, () => {
     =========================================
     `);
 });
+
